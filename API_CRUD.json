@@ -1,0 +1,650 @@
+{
+  "name": "API CRUD",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "buscar_empresa",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -460,
+        40
+      ],
+      "id": "04906c3a-c3fe-459a-bc79-ee4aec83f1da",
+      "name": "Webhook",
+      "webhookId": "ca9d7e4f-6244-49a6-9d87-10953ddee579",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "ZIaQFeTqt4jzHQXV",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT\n    200 AS CODIGO,\n    \"CADASTRO ENCONTRADO\" AS MENSAGEM,\n    ID,\n    ID_CONTRATANTE,\n    NOME_EMPRESA,\n    CNPJ_CPF,\n    UF,\n    CIDADE,\n    BAIRRO,\n    RUA,\n    NUMERO,\n    EMAIL,\n    MATRIZ,\n    ID_MATRIZ,\n    UUID,\n    ESPORADICO,\n    TIPO,\n    DATA_CRIADO,\n    ATIVO,\n    CEP,\n    COMPLEMENTO\nFROM\n    HELP_DESK_V1.EMPRESA \nWHERE \n    CNPJ_CPF = \"{{ $json.cnpj_cpf }}\"\n\nUNION ALL\n\nSELECT \n    204 AS CODIGO,\n    \"CADASTRO NÃO ENCONTRADO\" AS MENSAGEM,\n    NULL AS ID,\n    NULL AS ID_CONTRATANTE,\n    NULL AS NOME_EMPRESA,\n    NULL AS CNPJ_CPF,\n    NULL AS UF,\n    NULL AS CIDADE,\n    NULL AS BAIRRO,\n    NULL AS RUA,\n    NULL AS NUMERO,\n    NULL AS EMAIL,\n    NULL AS MATRIZ,\n    NULL AS ID_MATRIZ,\n    NULL AS UUID,\n    NULL AS ESPORADICO,\n    NULL AS TIPO,\n    NULL AS DATA_CRIADO,\n    NULL AS ATIVO,\n    NULL AS CEP,\n    NULL AS COMPLEMENTO\nFROM DUAL\nWHERE NOT EXISTS (\n    SELECT 1 FROM HELP_DESK_V1.EMPRESA WHERE CNPJ_CPF = \"{{ $json.cnpj_cpf }}\"\n);\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 2.4,
+      "position": [
+        -80,
+        40
+      ],
+      "id": "c39b17a4-f36d-44e6-a8a3-a9adf3917ea9",
+      "name": "MySQL",
+      "credentials": {
+        "mySql": {
+          "id": "1LSpRRxb98gSCDlB",
+          "name": "MariaDB"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Supondo que o valor original esteja em \"query.CNPJ\" no objeto JSON de entrada\nconst cnpjOriginal = $input.item.json.query.CNPJ_CPF;\n\n// Remove todos os caracteres que não são dígitos\nconst cnpjSomenteNumeros = cnpjOriginal.replace(/\\D/g, '');\n\n// Retorna o CNPJ formatado somente com números\nreturn {\n  json: {\n    cnpj_cpf: cnpjSomenteNumeros\n  }\n};\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -280,
+        40
+      ],
+      "id": "34bb50b2-45e3-467c-b91b-ee547cc57826",
+      "name": "Code1"
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {
+          "responseCode": "={{ $json.CODIGO }}"
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        140,
+        40
+      ],
+      "id": "11344090-5ca1-4620-9574-fd02a4136209",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        600,
+        140
+      ],
+      "id": "a9ea9a08-4916-4389-8e43-6bcd60e48acd",
+      "name": "No Operation, do nothing"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "adicionar_empresa",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -460,
+        -160
+      ],
+      "id": "f07d85f0-6990-46aa-a0e7-3fb951c1a87e",
+      "name": "Webhook1",
+      "webhookId": "ca9d7e4f-6244-49a6-9d87-10953ddee579",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "ZIaQFeTqt4jzHQXV",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "table": {
+          "__rl": true,
+          "value": "EMPRESA",
+          "mode": "list",
+          "cachedResultName": "EMPRESA"
+        },
+        "dataMode": "defineBelow",
+        "valuesToSend": {
+          "values": [
+            {
+              "column": "NOME_EMPRESA",
+              "value": "={{ $json.nome_empresa }}"
+            },
+            {
+              "column": "UF",
+              "value": "={{ $json.uf }}"
+            },
+            {
+              "column": "CIDADE",
+              "value": "={{ $json.cidade }}"
+            },
+            {
+              "column": "BAIRRO",
+              "value": "={{ $json.bairro }}"
+            },
+            {
+              "column": "RUA",
+              "value": "={{ $json.rua }}"
+            },
+            {
+              "column": "NUMERO",
+              "value": "={{ $json.numero }}"
+            },
+            {
+              "column": "EMAIL",
+              "value": "={{ $json.email }}"
+            },
+            {
+              "column": "MATRIZ",
+              "value": "={{ $json.matriz }}"
+            },
+            {
+              "column": "ESPORADICO",
+              "value": "={{ $json.esporadico }}"
+            },
+            {
+              "column": "TIPO",
+              "value": "={{ $json.tipo }}"
+            },
+            {
+              "column": "ATIVO",
+              "value": "={{ $json.ativo }}"
+            },
+            {
+              "column": "CEP",
+              "value": "={{ $json.cep }}"
+            },
+            {
+              "column": "COMPLEMENTO",
+              "value": "={{ $json.complemento }}"
+            },
+            {
+              "column": "CNPJ_CPF",
+              "value": "={{ $json.cnpj_cpf }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 2.4,
+      "position": [
+        -80,
+        -160
+      ],
+      "id": "037f58a1-ca97-4849-9575-1ccff9fe135e",
+      "name": "MySQL1",
+      "credentials": {
+        "mySql": {
+          "id": "1LSpRRxb98gSCDlB",
+          "name": "MariaDB"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $input.first().json.body;\n\nconst cnpjLimpo = body.CNPJ_CPF.replace(/\\D/g, '');\n\nreturn [\n  {\n    json: {\n      cnpj_cpf: cnpjLimpo,\n      nome_empresa: body.NOME_EMPRESA,\n      uf: body.UF,\n      cidade: body.CIDADE,\n      bairro: body.BAIRRO,\n      rua: body.RUA,\n      numero: body.NUMERO,\n      email: body.EMAIL,\n      matriz: body.MATRIZ,\n      esporadico: body.ESPORADICO,\n      tipo: body.TIPO,\n      data_criado: body.DATA_CRIADO,\n      ativo: body.ATIVO,\n      cep: body.CEP,\n      complemento: body.COMPLEMENTO\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -280,
+        -160
+      ],
+      "id": "8b746ee9-c62c-4fd4-a79b-f7de8f23bd2e",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "httpMethod": "DELETE",
+        "path": "deletar_empresa",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -460,
+        260
+      ],
+      "id": "46109061-2898-40ef-a53a-94ae2f320361",
+      "name": "Webhook2",
+      "webhookId": "ca9d7e4f-6244-49a6-9d87-10953ddee579",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "ZIaQFeTqt4jzHQXV",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "deleteTable",
+        "table": {
+          "__rl": true,
+          "value": "EMPRESA",
+          "mode": "list",
+          "cachedResultName": "EMPRESA"
+        },
+        "deleteCommand": "delete",
+        "where": {
+          "values": [
+            {
+              "column": "CNPJ_CPF",
+              "value": "={{ $json.cnpj_cpf }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 2.4,
+      "position": [
+        -80,
+        260
+      ],
+      "id": "b75dfe8d-bbed-448f-9f2c-9a3532477e88",
+      "name": "MySQL2",
+      "credentials": {
+        "mySql": {
+          "id": "1LSpRRxb98gSCDlB",
+          "name": "MariaDB"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Supondo que o valor original esteja em \"query.CNPJ\" no objeto JSON de entrada\nconst cnpjOriginal = $input.item.json.query.CNPJ_CPF;\n\n// Remove todos os caracteres que não são dígitos\nconst cnpjSomenteNumeros = cnpjOriginal.replace(/\\D/g, '');\n\n// Retorna o CNPJ formatado somente com números\nreturn {\n  json: {\n    cnpj_cpf: cnpjSomenteNumeros\n  }\n};\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -280,
+        260
+      ],
+      "id": "ea43d6c3-ab70-407d-b28b-36a64c9cda3b",
+      "name": "Code2"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        140,
+        260
+      ],
+      "id": "d93490aa-8eca-4e63-8856-23d2e930fe92",
+      "name": "Respond to Webhook1"
+    },
+    {
+      "parameters": {
+        "content": "# 📘 API CRUD EMPRESA\n\nPossui as 4 rotas principais de CRUD:\n\n- Inserir\n- Buscar\n- Atualizar\n- Deletar\n\nSeja para deletar, inserir, atualizar ou buscar dados das empresas.\n\n📄 **Segue a documentação no link:**\n[Documentação da API](https://documenter.getpostman.com/view/40910148/2sB2cPkR87)\n",
+        "height": 400,
+        "width": 320
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -880,
+        -160
+      ],
+      "id": "199d7338-af21-41a2-90f9-334b77bf8f88",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        140,
+        -160
+      ],
+      "id": "02facef8-e837-4215-91c5-5f702d958ce3",
+      "name": "Respond to Webhook2"
+    },
+    {
+      "parameters": {
+        "httpMethod": "PUT",
+        "path": "atualizar_empresa",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -460,
+        460
+      ],
+      "id": "3660a16e-f1b5-4ef8-9be5-28665d71edd8",
+      "name": "Webhook3",
+      "webhookId": "ca9d7e4f-6244-49a6-9d87-10953ddee579",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "ZIaQFeTqt4jzHQXV",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "table": {
+          "__rl": true,
+          "value": "EMPRESA",
+          "mode": "list",
+          "cachedResultName": "EMPRESA"
+        },
+        "dataMode": "defineBelow",
+        "columnToMatchOn": "CNPJ_CPF",
+        "valueToMatchOn": "={{ $json.cnpj_cpf }}",
+        "valuesToSend": {
+          "values": [
+            {
+              "column": "NOME_EMPRESA",
+              "value": "={{ $json.nome_empresa }}"
+            },
+            {
+              "column": "UF",
+              "value": "={{ $json.uf }}"
+            },
+            {
+              "column": "CIDADE",
+              "value": "={{ $json.cidade }}"
+            },
+            {
+              "column": "BAIRRO",
+              "value": "={{ $json.bairro }}"
+            },
+            {
+              "column": "RUA",
+              "value": "={{ $json.rua }}"
+            },
+            {
+              "column": "NUMERO",
+              "value": "={{ $json.numero }}"
+            },
+            {
+              "column": "EMAIL",
+              "value": "={{ $json.email }}"
+            },
+            {
+              "column": "MATRIZ",
+              "value": "={{ $json.matriz }}"
+            },
+            {
+              "column": "ESPORADICO",
+              "value": "={{ $json.esporadico }}"
+            },
+            {
+              "column": "TIPO",
+              "value": "={{ $json.tipo }}"
+            },
+            {
+              "column": "ATIVO",
+              "value": "={{ $json.ativo }}"
+            },
+            {
+              "column": "CEP",
+              "value": "={{ $json.cep }}"
+            },
+            {
+              "column": "COMPLEMENTO",
+              "value": "={{ $json.complemento }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mySql",
+      "typeVersion": 2.4,
+      "position": [
+        -80,
+        460
+      ],
+      "id": "e4c85aae-598e-46ba-aee0-7351d40c7466",
+      "name": "MySQL3",
+      "credentials": {
+        "mySql": {
+          "id": "1LSpRRxb98gSCDlB",
+          "name": "MariaDB"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        140,
+        460
+      ],
+      "id": "9de017ad-26c1-4948-aace-f8470594d892",
+      "name": "Respond to Webhook3"
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $input.first().json.body;\n\nconst cnpjLimpo = body.CNPJ_CPF.replace(/\\D/g, '');\n\nreturn [\n  {\n    json: {\n      cnpj_cpf: cnpjLimpo,\n      nome_empresa: body.NOME_EMPRESA,\n      uf: body.UF,\n      cidade: body.CIDADE,\n      bairro: body.BAIRRO,\n      rua: body.RUA,\n      numero: body.NUMERO,\n      email: body.EMAIL,\n      matriz: body.MATRIZ,\n      esporadico: body.ESPORADICO,\n      tipo: body.TIPO,\n      data_criado: body.DATA_CRIADO,\n      ativo: body.ATIVO,\n      cep: body.CEP,\n      complemento: body.COMPLEMENTO\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -280,
+        460
+      ],
+      "id": "8b15f7ec-564d-4af6-98c0-ef71bfd526d5",
+      "name": "Code3"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "MySQL": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code1": {
+      "main": [
+        [
+          {
+            "node": "MySQL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond to Webhook": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Code1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook1": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MySQL1": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "MySQL1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook2": {
+      "main": [
+        [
+          {
+            "node": "Code2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code2": {
+      "main": [
+        [
+          {
+            "node": "MySQL2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MySQL2": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond to Webhook1": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond to Webhook2": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook3": {
+      "main": [
+        [
+          {
+            "node": "Code3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MySQL3": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond to Webhook3": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code3": {
+      "main": [
+        [
+          {
+            "node": "MySQL3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "2c409e1e-9999-422c-a08a-f54193d7e192",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "e8c9101ca6ed84b060ca10eda508d592f2553b600f962ffd34d2740de11d27fc"
+  },
+  "id": "FpG9YFDydKnnquEI",
+  "tags": []
+}
